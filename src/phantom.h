@@ -106,6 +106,7 @@ public slots:
     QObject *createWebPage();
     QObject *createWebServer();
     QObject *createFilesystem();
+    QObject *createPrinter();
     QObject *createSystem();
     QObject *createCallback();
     void loadModule(const QString &moduleSource, const QString &filename);
