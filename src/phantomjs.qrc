@@ -5,6 +5,7 @@
         <file>bootstrap.js</file>
         <file>configurator.js</file>
         <file>modules/webpage.js</file>
+        <file>modules/printer.js</file>
         <file>modules/webserver.js</file>
         <file>modules/fs.js</file>
         <file>modules/system.js</file>
