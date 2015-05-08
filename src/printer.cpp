@@ -1,6 +1,8 @@
 
 #include "printer.h"
 
+#include <math.h>
+
 #define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
 
 Printer::Printer(QObject *parent) :
