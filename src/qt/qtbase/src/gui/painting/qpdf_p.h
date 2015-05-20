@@ -201,6 +201,8 @@ public:
                    Qt::ImageConversionFlags flags = Qt::AutoColor);
     void drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point);
 
+    void addHyperlink(const QRectF &r, const QUrl &url);
+
     void updateState(const QPaintEngineState &state);
 
     int metric(QPaintDevice::PaintDeviceMetric metricType) const;
