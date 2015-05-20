@@ -6,6 +6,8 @@
 
 TEMPLATE = subdirs
 
+QT += gui-private
+
 derived_sources.file = DerivedSources.pri
 target.file = Target.pri
 
