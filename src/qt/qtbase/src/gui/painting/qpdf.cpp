@@ -1191,6 +1191,41 @@ void QPdfEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 }
 
 
+void QPdfEngine::addHyperlink(const QRectF &r, const QUrl &url)
+{
+    Q_D(QPdfEngine);
+    char buf[256];
+    QRectF rr = d->pageMatrix().mapRect(r);
+    uint annot = d->addXrefEntry(-1);
+    QByteArray urlascii = url.toString().toLatin1();
+    int len = urlascii.size();
+    char *url_esc = new char[len * 2 + 1];
+    const char * urldata = urlascii.constData();
+    int k = 0;
+    for (int j = 0; j < len; j++, k++){
+        if (urldata[j] == '(' ||
+            urldata[j] == ')' ||
+            urldata[j] == '\\'){
+            url_esc[k] = '\\';
+            k++;
+        }
+        url_esc[k] = urldata[j];
+    }
+    url_esc[k] = 0;
+    d->xprintf("<<\n/Type /Annot\n/Subtype /Link\n/Rect [");
+    d->xprintf("%s ", qt_real_to_string(rr.left(),buf));
+    d->xprintf("%s ", qt_real_to_string(rr.top(),buf));
+    d->xprintf("%s ", qt_real_to_string(rr.right(),buf));
+    d->xprintf("%s", qt_real_to_string(rr.bottom(),buf));
+    d->xprintf("]\n/Border [0 0 0]\n/A <<\n");
+    d->xprintf("/Type /Action\n/S /URI\n/URI (%s)\n", url_esc);
+    d->xprintf(">>\n>>\n");
+    d->xprintf("endobj\n");
+    d->currentPage->annotations.append(annot);
+    delete[] url_esc;
+}
+
+
 void QPdfEngine::updateState(const QPaintEngineState &state)
 {
     Q_D(QPdfEngine);
@@ -1735,7 +1770,7 @@ void QPdfEnginePrivate::embedFont(QFontSubset *font)
             "/CapHeight " << properties.capHeight.toReal()*scale << "\n"
             "/StemV " << properties.lineWidth.toReal()*scale << "\n"
             "/FontFile2 " << fontstream << "0 R\n"
-            ">> endobj\n";
+            ">>\nendobj\n";
         write(descriptor);
     }
     {
@@ -1753,7 +1788,7 @@ void QPdfEnginePrivate::embedFont(QFontSubset *font)
             "stream\n";
         write(header);
         int len = writeCompressed(fontData);
-        write("endstream\n"
+        write("\nendstream\n"
               "endobj\n");
         addXrefEntry(length_object);
         xprintf("%d\n"
@@ -1780,7 +1815,7 @@ void QPdfEnginePrivate::embedFont(QFontSubset *font)
         xprintf("<< /Length %d >>\n"
                 "stream\n", touc.length());
         write(touc);
-        write("endstream\n"
+        write("\nendstream\n"
               "endobj\n");
     }
     {
@@ -1886,7 +1921,7 @@ void QPdfEnginePrivate::writePage()
     xprintf("stream\n");
     QIODevice *content = currentPage->stream();
     int len = writeCompressed(content);
-    xprintf("endstream\n"
+    xprintf("\nendstream\n"
             "endobj\n");
 
     addXrefEntry(pageStreamLength);
@@ -2109,7 +2144,7 @@ int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height,
             xprintf(">>\nstream\n");
         len = writeCompressed(data);
     }
-    xprintf("endstream\n"
+    xprintf("\nendstream\n"
             "endobj\n");
     addXrefEntry(lenobj);
     xprintf("%d\n"
@@ -2201,7 +2236,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
                 ">>\n"
                 "stream\n"
               << content
-              << "endstream\n"
+              << "\nendstream\n"
                 "endobj\n";
 
             int softMaskFormObject = addXrefEntry(-1);

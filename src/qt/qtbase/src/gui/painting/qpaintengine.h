@@ -45,6 +45,7 @@
 #include <QtCore/qnamespace.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qscopedpointer.h>
+#include <QtCore/qurl.h>
 #include <QtGui/qpainter.h>
 
 QT_BEGIN_NAMESPACE
@@ -178,6 +179,9 @@ public:
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
     virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
                            Qt::ImageConversionFlags flags = Qt::AutoColor);
+
+    virtual void addHyperlink(const QRectF &r, const QUrl &url) {Q_UNUSED(r); Q_UNUSED(url);}
+    virtual void addHyperlink(const QRect &r, const QUrl &url) {Q_UNUSED(r); Q_UNUSED(url);}
 
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;

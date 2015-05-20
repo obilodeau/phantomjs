@@ -452,6 +452,10 @@ public:
     inline void eraseRect(int x, int y, int w, int h);
     inline void eraseRect(const QRect &);
 
+    inline void addHyperlink(int x, int y, int w, int h, const QUrl &url);
+    inline void addHyperlink(const QRect &r, const QUrl &url);
+    void addHyperlink(const QRectF &r, const QUrl &url);
+
     void setRenderHint(RenderHint hint, bool on = true);
     void setRenderHints(RenderHints hints, bool on = true);
     RenderHints renderHints() const;
@@ -745,6 +749,15 @@ inline void QPainter::fillRect(const QRectF &r, Qt::BrushStyle style)
     fillRect(r, QBrush(style));
 }
 
+inline void QPainter::addHyperlink(int x, int y, int w, int h, const QUrl &url)
+{
+    addHyperlink(QRectF(x, y, w, h), url);
+}
+
+inline void QPainter::addHyperlink(const QRect &r, const QUrl &url)
+{
+    addHyperlink(QRectF(r), url);
+}
 
 inline void QPainter::setBrushOrigin(int x, int y)
 {

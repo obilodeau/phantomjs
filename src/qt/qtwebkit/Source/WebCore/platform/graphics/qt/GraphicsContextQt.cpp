@@ -54,6 +54,7 @@
 #include "ShadowBlur.h"
 #include "TransformationMatrix.h"
 #include "TransparencyLayer.h"
+#include "KURL.h"
 
 #include <QBrush>
 #include <QGradient>
@@ -1533,9 +1534,13 @@ void GraphicsContext::set3DTransform(const TransformationMatrix& transform)
 }
 #endif
 
-void GraphicsContext::setURLForRect(const KURL&, const IntRect&)
+void GraphicsContext::setURLForRect(const KURL& url, const IntRect& rect)
 {
-    notImplemented();
+    if (paintingDisabled())
+        return;
+
+    QPainter* p = m_data->p();
+    p->addHyperlink(rect.x(), rect.y(), rect.width(), rect.height(), QUrl(url.string()));
 }
 
 void GraphicsContext::setPlatformStrokeColor(const Color& color, ColorSpace colorSpace)

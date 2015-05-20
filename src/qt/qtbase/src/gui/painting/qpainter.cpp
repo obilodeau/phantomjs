@@ -7003,6 +7003,45 @@ void QPainter::fillRect(const QRectF &r, const QColor &color)
     \since 4.5
 */
 
+
+
+/*!
+    \fn void QPainter::addHyperlink(const QRect &r, const QUrl &url);
+
+    \overload
+
+    Add a link to the current page at the rect specified by \a r
+    linking to \a url.
+
+    Note that for output formats not supporting links, currently all other then PDF,
+    this call has no effect.
+
+    \since 4.7
+*/
+
+/*!
+    \fn void QPainter::addHyperlink(const QRectF &r, const QUrl &url);
+
+    \overload
+
+    Add a link to the current page at the rect specified by \a r
+    linking to \a url.
+
+    Note that for output formats not supporting links, currently all other then PDF,
+    this call has no effect.
+
+    \since 4.7
+*/
+void QPainter::addHyperlink(const QRectF &r, const QUrl &url)
+{
+    Q_D(QPainter);
+    if (!d->engine) {
+        qWarning("QPainter::addHyperlink: Painter not active");
+        return;
+    }
+    d->engine->addHyperlink(worldTransform().mapRect(r), url);
+}
+
 /*!
     Sets the given render \a hint on the painter if \a on is true;
     otherwise clears the render hint.
