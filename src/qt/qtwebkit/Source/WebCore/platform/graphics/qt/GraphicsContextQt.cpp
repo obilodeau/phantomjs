@@ -1539,8 +1539,7 @@ void GraphicsContext::setURLForRect(const KURL& url, const IntRect& rect)
     if (paintingDisabled())
         return;
 
-    QPainter* p = m_data->p();
-    p->addHyperlink(rect.x(), rect.y(), rect.width(), rect.height(), QUrl(url.string()));
+    m_data->p()->addHyperlink(rect.x(), rect.y(), rect.width(), rect.height(), QUrl(url.string()));
 }
 
 void GraphicsContext::setPlatformStrokeColor(const Color& color, ColorSpace colorSpace)

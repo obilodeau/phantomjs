@@ -7016,7 +7016,7 @@ void QPainter::fillRect(const QRectF &r, const QColor &color)
     Note that for output formats not supporting links, currently all other then PDF,
     this call has no effect.
 
-    \since 4.7
+    \since 5.6
 */
 
 /*!
@@ -7030,11 +7030,12 @@ void QPainter::fillRect(const QRectF &r, const QColor &color)
     Note that for output formats not supporting links, currently all other then PDF,
     this call has no effect.
 
-    \since 4.7
+    \since 5.6
 */
 void QPainter::addHyperlink(const QRectF &r, const QUrl &url)
 {
     Q_D(QPainter);
+
     if (!d->engine) {
         qWarning("QPainter::addHyperlink: Painter not active");
         return;
