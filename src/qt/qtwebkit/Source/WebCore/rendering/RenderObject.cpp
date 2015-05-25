@@ -2338,7 +2338,8 @@ RespectImageOrientationEnum RenderObject::shouldRespectImageOrientation() const
 
 bool RenderObject::hasOutlineAnnotation() const
 {
-    return node() && node()->isLink() && document()->printing();
+    // Allow outline to be rendered even outside printing context. Enables the rendering of anchor elements as actual hyperlinks in PDF outputs.
+    return node() && node()->isLink() /* && document()->printing() */;
 }
 
 bool RenderObject::hasEntirelyFixedBackground() const
