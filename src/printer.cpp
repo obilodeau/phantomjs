@@ -3,40 +3,72 @@
 
 #include <math.h>
 
-#define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
+#define PHANTOMJS_PDF_DPI 72 // Different defaults. OSX: 72, X11: 75(?), Windows: 96
 
 Printer::Printer(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_isFirstPage(true)
 {
     m_printer = new QPrinter();
     m_printer->setOutputFormat(QPrinter::PdfFormat);
-    m_printer->setOutputFileName("test.pdf");
     m_printer->setResolution(PHANTOMJS_PDF_DPI);
-    QVariantMap paperSize;
-//    
-    if (paperSize.isEmpty()) {
-//        const QSize pageSize = m_mainFrame->contentsSize();
-        paperSize.insert("width", /*QString::number(pageSize.width()) +*/ "1280px");
-        paperSize.insert("height", /*QString::number(pageSize.height()) +*/ "720px");
-        paperSize.insert("margin", "0px");
-    }
-    
-    if (paperSize.contains("width") && paperSize.contains("height")) {
-        const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
-                            ceil(stringToPointSize(paperSize.value("height").toString())));
-        m_printer->setPaperSize(sizePt, QPrinter::Point);
-    }
-    
-    if (paperSize.contains("border") && !paperSize.contains("margin")) {
-        // backwards compatibility
-        paperSize["margin"] = paperSize["border"];
-    }
 
-    qreal marginLeft = 0;
-    qreal marginTop = 0;
-    qreal marginRight = 0;
-    qreal marginBottom = 0;
-    
+    m_painter = new QPainter();
+}
+
+Printer::~Printer()
+{
+    delete m_painter;
+    delete m_printer;
+}
+
+bool Printer::begin()
+{
+    return m_painter->begin(m_printer);
+}
+
+// Do not change the signature argument as this is introspected by the Qt type API to bind JavaScript calls
+void Printer::printPage(QObject * object)
+{
+    if (!m_isFirstPage)
+        m_printer->newPage();
+    else
+        m_isFirstPage = false;
+
+    WebPage* page = (WebPage*) object;
+    QWebFrame* frame = page->mainFrame();
+    frame->render(m_painter, QRegion(QRect(QPoint(0, 0), frame->contentsSize())));
+}
+
+bool Printer::end()
+{
+    return m_painter->end();
+}
+
+QString Printer::outputFileName() const
+{
+    return m_printer->outputFileName();
+}
+
+void Printer::setOutputFileName(const QString &fileName)
+{
+    m_printer->setOutputFileName(fileName);
+}
+
+QVariantMap Printer::paperSize() const
+{
+    return m_paperSize;
+}
+
+void Printer::setPaperSize(const QVariantMap &paperSize)
+{
+    m_paperSize = paperSize;
+
+    const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
+                        ceil(stringToPointSize(paperSize.value("height").toString())));
+    m_printer->setPaperSize(sizePt, QPrinter::Point);
+
+    qreal marginLeft = 0, marginTop = 0, marginRight = 0, marginBottom = 0;
     if (paperSize.contains("margin")) {
         const QVariant margins = paperSize["margin"];
         if (margins.canConvert(QVariant::Map)) {
@@ -53,38 +85,7 @@ Printer::Printer(QObject *parent) :
             marginBottom = margin;
         }
     }
-    
     m_printer->setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
-    
-    m_painter = new QPainter(m_printer);
-}
-
-Printer::~Printer()
-{
-    delete m_painter;
-    delete m_printer;
-}
-
-void Printer::printPage(QObject * object)
-{
-    if (!isFirstPage) {
-        m_printer->newPage();
-    } else {
-        isFirstPage = false;
-    }
-
-    WebPage* page = (WebPage*) object;
-    QWebFrame* frame = page->mainFrame();
-    QSize contentsSize = frame->contentsSize();
-    QRect frameRect = QRect(QPoint(0, 0), contentsSize);
-//    page->setViewportSize(contentsSize);
-
-    frame->render(m_painter, QRegion(frameRect));
-}
-
-void Printer::setOutputFileName(const QString &fileName)
-{
-    m_printer->setOutputFileName(fileName);
 }
 
 qreal Printer::stringToPointSize(const QString &string)
@@ -112,9 +113,8 @@ qreal Printer::stringToPointSize(const QString &string)
 qreal Printer::printMargin(const QVariantMap &map, const QString &key)
 {
     const QVariant margin = map.value(key);
-    if (margin.isValid() && margin.canConvert(QVariant::String)) {
+    if (margin.isValid() && margin.canConvert(QVariant::String))
         return stringToPointSize(margin.toString());
-    } else {
+    else
         return 0;
-    }
 }
