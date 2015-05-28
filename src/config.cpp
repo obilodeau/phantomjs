@@ -142,6 +142,16 @@ void Config::processArgs(const QStringList& args)
     }
 }
 
+void Config::loadDefaultJsonFile()
+{
+    const QString filePath = "phantomjs.json";
+    QFile f(filePath);
+
+    if (f.exists()) {
+        loadJsonFile(filePath);
+    }
+}
+
 void Config::loadJsonFile(const QString& filePath)
 {
     QString jsonConfig;
@@ -594,6 +604,8 @@ void Config::resetToDefaults()
     m_webdriverLogFile = QString();
     m_webdriverLogLevel = "INFO";
     m_webdriverSeleniumGridHub = QString();
+
+    loadDefaultJsonFile();
 }
 
 void Config::setProxyAuthPass(const QString& value)

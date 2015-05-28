@@ -71,6 +71,7 @@ public:
 
     void init(const QStringList* const args);
     void processArgs(const QStringList& args);
+    void loadDefaultJsonFile();
     void loadJsonFile(const QString& filePath);
 
     QString helpText() const;
